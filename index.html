@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberQuiz — Информационная безопасность</title>
+
+<style>
+:root {
+  --bg: #080d1b;
+  --panel: #111a30;
+  --panel-light: #192641;
+  --blue: #4385ff;
+  --cyan: #43e8ff;
+  --purple: #9b6dff;
+  --green: #22c55e;
+  --red: #ef4444;
+  --text: #f1f5ff;
+  --muted: #9ba9c4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at 15% 15%, #17275a 0%, transparent 38%),
+    radial-gradient(ellipse at 85% 85%, #25174b 0%, transparent 38%),
+    var(--bg);
+  overflow-x: hidden;
+}
+
+.background-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(#4772a8 1px, transparent 1px),
+    linear-gradient(90deg, #4772a8 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  animation: heroIn 0.7s ease both;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.shield {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  border: 1px solid #4d7dff;
+  border-radius: 26px;
+  background: linear-gradient(145deg, #1d3a70, #172047);
+  box-shadow: 0 0 35px #397bff38, inset 0 0 20px #43e8ff12;
+  animation: shieldFloat 3s ease-in-out infinite;
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(28px, 6vw, 42px);
+  letter-spacing: -1px;
+}
+
+h1 span {
+  color: var(--cyan);
+}
+
+.subtitle {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 12px auto 0;
+  max-width: 460px;
+}
+
+.card {
+  background: linear-gradient(145deg, #121d35f5, #0e162af5);
+  border: 1px solid #2b3b5b;
+  border-radius: 24px;
+  padding: clamp(20px, 5vw, 32px);
+  box-shadow: 0 24px 70px #0005;
+  overflow: hidden;
+}
+
+.topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tag {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #c4d4ff;
+  background: #243555;
+  padding: 8px 12px;
+  border-radius: 9px;
+}
+
+.counter {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 20px;
+  background: #26334d;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  box-shadow: 0 0 15px #43e8ff55;
+  transition: width 0.45s ease;
+}
+
+.question-number {
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: clamp(20px, 4vw, 26px);
+  line-height: 1.4;
+  margin: 0 0 24px;
+}
+
+.answers {
+  display: grid;
+  gap: 12px;
+}
+
+/* Оформление кнопок ответов */
+button.answer {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+  padding: 15px;
+  border: 1px solid #2b3b5b;
+  border-radius: 14px;
+  background: #17233b;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  animation: answerIn 0.4s ease both;
+}
+
+.answer:nth-child(2) { animation-delay: 0.06s; }
+.answer:nth-child(3) { animation-delay: 0.12s; }
+.answer:nth-child(4) { animation-delay: 0.18s; }
+
+.answer:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--blue);
+  background: #202f50;
+  box-shadow: 0 5px 20px #397bff18;
+}
+
+.answer:focus-visible,
+.next-btn:focus-visible,
+.restart-btn:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.letter {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #263653;
+  color: #c8d7f7;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.answer-text {
+  flex: 1;
+}
+
+/* Правильный ответ всегда зелёный */
+button.answer.correct,
+button.answer.correct:hover,
+button.answer.correct:disabled {
+  background: #123d2b !important;
+  border-color: #22c55e !important;
+  color: #dcfce7 !important;
+  box-shadow: 0 0 22px #22c55e20;
+  animation: correctPop 0.4s ease both;
+}
+
+.answer.correct .letter {
+  color: #ffffff;
+  background: #168344;
+}
+
+/* Неправильный выбранный ответ всегда красный */
+button.answer.wrong,
+button.answer.wrong:hover,
+button.answer.wrong:disabled {
+  background: #4b1c28 !important;
+  border-color: #ef4444 !important;
+  color: #fee2e2 !important;
+  box-shadow: 0 0 22px #ef444420;
+  animation: shake 0.35s ease both;
+}
+
+.answer.wrong .letter {
+  color: #ffffff;
+  background: #b52e3b;
+}
+
+.answer:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.feedback {
+  display: none;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 13px;
+  line-height: 1.55;
+  animation: feedbackIn 0.35s ease both;
+}
+
+.feedback.show {
+  display: block;
+}
+
+.feedback.good {
+  color: #bbf7d0;
+  background: #123d2b;
+  border: 1px solid #22884c;
+}
+
+.feedback.bad {
+  color: #fecaca;
+  background: #421b29;
+  border: 1px solid #a83a49;
+}
+
+.feedback strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.score {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.score strong {
+  color: var(--cyan);
+}
+
+.next-btn,
+.restart-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 20px;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  background: linear-gradient(100deg, #3677f5, #6d59ee);
+  box-shadow: 0 5px 22px #397bff30;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.next-btn:hover,
+.restart-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.next-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.result {
+  display: none;
+  text-align: center;
+  padding: 12px 0;
+  animation: screenIn 0.5s ease both;
+}
+
+.result.show {
+  display: block;
+}
+
+.result-icon {
+  font-size: 64px;
+  margin: 5px 0 20px;
+  animation: resultPop 0.65s ease both;
+}
+
+.result h2 {
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.result-description {
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 460px;
+  margin: 0 auto 24px;
+}
+
+.final-score {
+  display: inline-block;
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--cyan);
+  padding: 16px 28px;
+  margin-bottom: 24px;
+  background: #182845;
+  border: 1px solid #34547d;
+  border-radius: 18px;
+}
+
+.footer {
+  text-align: center;
+  color: #74839f;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shieldFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes answerIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes selectPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+
+@keyframes correctPop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes feedbackIn {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes resultPop {
+  0% { opacity: 0; transform: scale(0.6); }
+  70% { opacity: 1; transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 18px 12px;
+  }
+
+  .shield {
+    width: 72px;
+    height: 72px;
+    font-size: 36px;
+    border-radius: 22px;
+  }
+
+  .card {
+    border-radius: 19px;
+  }
+
+  .answer {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .next-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="background-grid"></div>
+
+<main class="container">
+  <header class="header">
+    <div class="shield" aria-hidden="true">🛡️</div>
+    <div class="eyebrow">ТВОЯ ЦИФРОВАЯ ЗАЩИТА</div>
+    <h1>Cyber<span>Quiz</span></h1>
+    <p class="subtitle">
+      Проверь свои знания об информационной безопасности
+      и научись защищать свой аккаунт в интернете.
+    </p>
+  </header>
+
+  <section class="card">
+    <div id="quizScreen">
+      <div class="topline">
+        <span class="tag">КИБЕРБЕЗОПАСНОСТЬ</span>
+        <span class="counter" id="counter">Вопрос 1 из 5</span>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="question-number" id="questionNumber">ВОПРОС 01</div>
+      <h2 id="questionText">Загрузка вопроса...</h2>
+
+      <div class="answers" id="answers"></div>
+
+      <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+      <div class="bottom">
+        <div class="score">Правильных ответов: <strong id="score">0</strong></div>
+        <button class="next-btn" id="nextBtn" disabled>Далее →</button>
+      </div>
+    </div>
+
+    <div class="result" id="resultScreen">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <h2 id="resultTitle">Квиз завершён!</h2>
+      <p class="result-description" id="resultDescription"></p>
+      <div class="final-score" id="finalScore">0 / 5</div>
+      <br>
+      <button class="restart-btn" id="restartBtn">Пройти ещё раз ↻</button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    CYBERQUIZ · БЕЗОПАСНОСТЬ НАЧИНАЕТСЯ С ТЕБЯ
+  </footer>
+</main>
+
+<script>
+const questions = [
+  {
+    question: "Что нужно сделать первым при создании аккаунта?",
+    answers: [
+      "Открыть сайт платформы",
+      "Сразу ввести пароль",
+      "Написать учителю",
+      "Скачать приложение"
+    ],
+    correct: 0,
+    explanation: "Сначала открой официальный сайт или приложение платформы."
+  },
+  {
+    question: "Какой пароль считается надёжным?",
+    answers: [
+      "admin",
+      "123456",
+      "Буквы и цифры, не менее 8 символов",
+      "Дата рождения"
+    ],
+    correct: 2,
+    explanation: "Используй длинный уникальный пароль. Хорошо, если в нём есть разные типы символов."
+  },
+  {
+    question: "Зачем нужно подтверждать почту?",
+    answers: [
+      "Чтобы проверить, что почта твоя",
+      "Чтобы получать спам",
+      "Чтобы запомнить пароль",
+      "Просто так"
+    ],
+    correct: 0,
+    explanation: "Подтверждение помогает убедиться, что адрес электронной почты принадлежит тебе."
+  },
+  {
+    question: "Что делать после регистрации?",
+    answers: [
+      "Войти в аккаунт и начать учиться",
+      "Удалить аккаунт",
+      "Забыть пароль",
+      "Создать второй аккаунт"
+    ],
+    correct: 0,
+    explanation: "После регистрации войди в аккаунт и пользуйся возможностями платформы."
+  },
+  {
+    question: "Можно ли использовать пароль admin?",
+    answers: [
+      "Да, это удобно",
+      "Нет, это небезопасно",
+      "Только дома",
+      "Только в школе"
+    ],
+    correct: 1,
+    explanation: "Простые и распространённые пароли легко угадать. Выбирай уникальный пароль."
+  }
+];
+
+const letters = ["A", "B", "C", "D"];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+const quizScreen = document.getElementById("quizScreen");
+const resultScreen = document.getElementById("resultScreen");
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+const answersContainer = document.getElementById("answers");
+const feedback = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+const counter = document.getElementById("counter");
+const progressBar = document.getElementById("progressBar");
+const scoreElement = document.getElementById("score");
+
+function renderQuestion() {
+  answered = false;
+
+  const q = questions[currentQuestion];
+
+  questionNumber.textContent =
+    "ВОПРОС " + String(currentQuestion + 1).padStart(2, "0");
+
+  questionText.textContent = q.question;
+  counter.textContent =
+    "Вопрос " + (currentQuestion + 1) + " из " + questions.length;
+
+  progressBar.style.width =
+    (currentQuestion / questions.length * 100) + "%";
+
+  answersContainer.innerHTML = "";
+  feedback.className = "feedback";
+  feedback.textContent = "";
+  nextBtn.disabled = true;
+
+  nextBtn.textContent =
+    currentQuestion === questions.length - 1
+      ? "Результат →"
+      : "Далее →";
+
+  q.answers.forEach((answer, index) => {
+    const button = document.createElement("button");
+    button.className = "answer";
+    button.type = "button";
+
+    const letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = letters[index];
+
+    const answerText = document.createElement("span");
+    answerText.className = "answer-text";
+    answerText.textContent = answer;
+
+    button.appendChild(letter);
+    button.appendChild(answerText);
+
+    button.addEventListener("click", () => chooseAnswer(index));
+
+    answersContainer.appendChild(button);
+  });
+
+  quizScreen.classList.remove("hidden");
+}
+
+function chooseAnswer(index) {
+  if (answered) return;
+
+  answered = true;
+
+  const q = questions[currentQuestion];
+  const buttons = answersContainer.querySelectorAll(".answer");
+  const isCorrect = index === q.correct;
+
+  buttons.forEach(button => {
+    button.disabled = true;
+  });
+
+  // Правильный ответ всегда зелёный.
+  buttons[q.correct].classList.add("correct");
+
+  if (isCorrect) {
+    score++;
+    scoreElement.textContent = score;
+
+    feedback.className = "feedback show good";
+    feedback.innerHTML =
+      "<strong>✓ Правильно!</strong>" + q.explanation;
+  } else {
+    // Выбранный неправильный ответ всегда красный.
+    buttons[index].classList.add("wrong");
+
+    feedback.className = "feedback show bad";
+    feedback.innerHTML =
+      "<strong>✕ Не совсем!</strong>" +
+      q.explanation;
+  }
+
+  nextBtn.disabled = false;
+}
+
+function showResult() {
+  quizScreen.classList.add("hidden");
+  resultScreen.classList.add("show");
+
+  progressBar.style.width = "100%";
+  document.getElementById("finalScore").textContent =
+    score + " / " + questions.length;
+
+  const resultIcon = document.getElementById("resultIcon");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultDescription =
+    document.getElementById("resultDescription");
+
+  if (score === questions.length) {
+    resultIcon.textContent = "🏆";
+    resultTitle.textContent = "Идеальный результат!";
+    resultDescription.textContent =
+      "Отлично! Ты правильно ответил на все вопросы и хорошо знаешь основы безопасности в интернете.";
+  } else if (score >= 3) {
+    resultIcon.textContent = "🛡️";
+    resultTitle.textContent = "Хорошая работа!";
+    resultDescription.textContent =
+      "Ты уже знаешь многое об информационной безопасности. Повтори объяснения и попробуй улучшить результат.";
+  } else {
+    resultIcon.textContent = "💻";
+    resultTitle.textContent = "Начало положено!";
+    resultDescription.textContent =
+      "Теперь ты знаешь немного больше о безопасности в интернете. Попробуй пройти квиз ещё раз!";
+  }
+}
+
+nextBtn.addEventListener("click", () => {
+  if (!answered) return;
+
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  currentQuestion = 0;
+  score = 0;
+  answered = false;
+
+  scoreElement.textContent = "0";
+  resultScreen.classList.remove("show");
+  progressBar.style.width = "0%";
+
+  renderQuestion();
+});
+
+renderQuestion();
+</script>
+</body>
+</html>
+
